@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace XOProject
 {
-    public class HourlyShareRate
+    public class Share
     {
         public int Id { get; set; }
 

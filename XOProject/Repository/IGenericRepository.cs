@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace XOProject
@@ -12,5 +15,10 @@ namespace XOProject
         Task InsertAsync(T entity);
 
         Task UpdateAsync(T entity);
+
+        Task<T> FindByIdAsync(object id);
+
+        Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate);
+
     }
 }

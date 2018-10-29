@@ -21,7 +21,7 @@ namespace XOProject.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("XOProject.HourlyShareRate", b =>
+            modelBuilder.Entity("XOProject.Share", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,7 +36,7 @@ namespace XOProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Shares");
+                    b.ToTable("Share");
 
                     b.HasData(
                         new { Id = 1, Rate = 90m, Symbol = "REL", TimeStamp = new DateTime(2018, 8, 13, 1, 0, 0, 0, DateTimeKind.Unspecified) },

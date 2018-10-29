@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace XOProject.Controller
@@ -7,7 +6,7 @@ namespace XOProject.Controller
     [Route("api/Portfolio")]
     public class PortfolioController : ControllerBase
     {
-        private IPortfolioRepository _portfolioRepository { get; set; }
+        private IPortfolioRepository _portfolioRepository;
 
         public PortfolioController(IShareRepository shareRepository, ITradeRepository tradeRepository, IPortfolioRepository portfolioRepository)
         {
@@ -17,7 +16,7 @@ namespace XOProject.Controller
         [HttpGet("{portFolioid}")]
         public async Task<IActionResult> GetPortfolioInfo([FromRoute]int portFolioid)
         {
-            var portfolio = _portfolioRepository.GetAll().Where(x => x.Id.Equals(portFolioid));
+            var portfolio = await _portfolioRepository.FindByIdAsync(portFolioid);
             
             return Ok(portfolio);
         }

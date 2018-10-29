@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using FluentAssertions;
 using XOProject.Controller;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
@@ -21,25 +24,92 @@ namespace XOProject.Tests
         [Test]
         public async Task Post_ShouldInsertHourlySharePrice()
         {
-            var hourRate = new HourlyShareRate
+            // Arrege
+            var hourRate = new Share
             {
+                Id = 1,
                 Symbol = "CBI",
                 Rate = 330.0M,
                 TimeStamp = new DateTime(2018, 08, 17, 5, 0, 0)
             };
 
-            // Arrange
+            _shareRepositoryMock
+                .Setup(m => m.InsertAsync(It.IsAny<Share>()))
+                .Returns(Task.FromResult(hourRate));
 
             // Act
             var result = await _shareController.Post(hourRate);
 
             // Assert
-            Assert.NotNull(result);
+            var okResult = result.Should().BeOfType<CreatedResult>().Subject;
+            var shareCreated = okResult.Value.Should().BeAssignableTo<Share>().Subject;
 
-            var createdResult = result as CreatedResult;
-            Assert.NotNull(createdResult);
-            Assert.AreEqual(201, createdResult.StatusCode);
+            shareCreated.Id.Should().Be(1);
+            shareCreated.Symbol.Should().Be("CBI");
+            shareCreated.Rate.Should().Be(330.0M);
+            shareCreated.TimeStamp.Should().Be(new DateTime(2018, 08, 17, 5, 0, 0));
+
+            _shareRepositoryMock.Verify(mock => mock.InsertAsync(It.IsAny<Share>()));
         }
-        
+
+        [Test]
+        public async Task CanReturnShareBySymbol()
+        {
+            // Arrege
+            _shareRepositoryMock
+                .Setup(m => m.FindAsync(It.IsAny<Expression<Func<Share, bool>>>()))
+                .Returns(Task.FromResult(new List<Share>()
+                {
+                    new Share()
+                }));
+
+            // Act
+            var result = await _shareController.Get("REL");
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var shareList = okResult.Value.Should().BeAssignableTo<IEnumerable<Share>>().Subject;
+
+            shareList.Should().NotBeEmpty();
+            _shareRepositoryMock.Verify(mock => mock.FindAsync(It.IsAny<Expression<Func<Share, bool>>>()));
+
+        }
+
+
+        [Test]
+        public async Task CanReturnLatestPriceBySymbol()
+        {
+            // Arrege
+            _shareRepositoryMock
+                .Setup(m => m.FindLastBySymbolAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult(new Share(){Rate = 100.0M}));
+
+            // Act
+            var result = await _shareController.GetLatestPrice("REL");
+
+            // Assert
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var lastetPrice = okResult.Value;
+
+            Assert.AreEqual(100.0M, lastetPrice);
+            _shareRepositoryMock.Verify(mock => mock.FindLastBySymbolAsync(It.IsAny<string>()));
+
+        }
+    
+        [Test]
+        public async Task ShareControllerReturnsBadRequestWhenModelStateIsInvalid()
+        {
+            // Arrange
+            var hourRate = new Share {Symbol = "REL", Rate = 100.0M};
+            _shareController.ModelState.AddModelError("timeStamp", "The input was not valid.");
+
+            // Act
+            var result = await _shareController.Post(hourRate);
+
+            // Assert
+            var badRequest = result.Should().BeOfType<BadRequestObjectResult>();
+            Assert.AreEqual(new SerializableError(_shareController.ModelState), badRequest.Subject.Value);
+        }
+
     }
 }

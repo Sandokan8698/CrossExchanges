@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +32,17 @@ namespace XOProject
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
+        }
+
+        public Task<T> FindByIdAsync(object id)
+        {
+            return _dbContext.Set<T>().FindAsync(id);
+        }
+
+
+        public Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+                return _dbContext.Set<T>().Where(predicate).ToListAsync();
         }
     }
 }

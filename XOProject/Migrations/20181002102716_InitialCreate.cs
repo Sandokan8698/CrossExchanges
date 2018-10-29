@@ -22,7 +22,7 @@ namespace XOProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Shares",
+                name: "Share",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -65,7 +65,7 @@ namespace XOProject.Migrations
                 values: new object[] { 1, "John Doe" });
 
             migrationBuilder.InsertData(
-                table: "Shares",
+                table: "Share",
                 columns: new[] { "Id", "Rate", "Symbol", "TimeStamp" },
                 values: new object[,]
                 {
@@ -109,7 +109,7 @@ namespace XOProject.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Shares");
+                name: "Share");
 
             migrationBuilder.DropTable(
                 name: "Trades");

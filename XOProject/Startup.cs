@@ -41,7 +41,6 @@ namespace XOProject
             }
 
             app.UseStaticFiles();
-
             app.UseMvc();
         }
     }

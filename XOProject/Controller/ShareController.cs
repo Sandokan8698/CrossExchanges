@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace XOProject.Controller
 {
     [Route("api/Share")]
     public class ShareController : ControllerBase
     {
-        public IShareRepository _shareRepository { get; set; }
+        public IShareRepository _shareRepository;
 
         public ShareController(IShareRepository shareRepository)
         {
@@ -17,45 +15,56 @@ namespace XOProject.Controller
         }
 
         [HttpPut("{symbol}")]
-        public async void UpdateLastPrice([FromRoute]string symbol)
+        public async Task<IActionResult> UpdateLastPrice([FromRoute]string symbol)
         {
-            var share = await _shareRepository.Query().Where(x => x.Symbol.Equals(symbol)).OrderByDescending(x => x.Rate).FirstOrDefaultAsync();
-            share.Rate =+ 10;
-            await _shareRepository.UpdateAsync(share);
-        }
+            try
+            {
+                var share = await _shareRepository.FindLastBySymbolAsync(symbol);
+                share.Rate = +10;
+                await _shareRepository.UpdateAsync(share);
 
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                throw new HttpStatusCodeException(500, e.Message);
+            }
+           
+        }
 
         [HttpGet("{symbol}")]
         public async Task<IActionResult> Get([FromRoute]string symbol)
         {
-            var shares = _shareRepository.Query().Where(x => x.Symbol.Equals(symbol)).ToList();
-            if (shares.Count >= 0)
-            {
-                return Ok(shares);
-            }
-            else
-                return BadRequest();
+            var shares = await _shareRepository.FindAsync(x => x.Symbol == symbol);
+            return Ok(shares);
         }
-
 
         [HttpGet("{symbol}/Latest")]
         public async Task<IActionResult> GetLatestPrice([FromRoute]string symbol)
         {
-            var share = await _shareRepository.Query().Where(x => x.Symbol.Equals(symbol)).FirstOrDefaultAsync();
+            var share = await _shareRepository.FindLastBySymbolAsync(symbol);
             return Ok(share?.Rate);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]HourlyShareRate value)
+        public async Task<IActionResult> Post([FromBody]Share value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await _shareRepository.InsertAsync(value);
+            try
+            {
+                await _shareRepository.InsertAsync(value);
 
-            return Created($"Share/{value.Id}", value);
+                return Created($"Share/{value.Id}", value);
+            }
+            catch (Exception e)
+            {
+                throw new HttpStatusCodeException(500, e.Message);
+            }
+           
         }
         
     }
