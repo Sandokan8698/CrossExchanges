@@ -13,7 +13,7 @@ namespace XOProject.Controller
     {
         private ITradeRepository _tradeRepository;
 
-        public TradeController(IShareRepository shareRepository, ITradeRepository tradeRepository, IPortfolioRepository portfolioRepository)
+        public TradeController(ITradeRepository tradeRepository)
         {
             _tradeRepository = tradeRepository;
         }
@@ -22,7 +22,7 @@ namespace XOProject.Controller
         [HttpGet("{portfolioid}")]
         public async Task<IActionResult> GetAllTradings([FromRoute]int portFolioid)
         {
-            var trade = await _tradeRepository.FindAsync(x => x.PortfolioId == portFolioid);
+            var trade = await _tradeRepository.FindAsync(x => x.PortfolioId.Equals(portFolioid));
             return Ok(trade);
         }
 
@@ -38,7 +38,6 @@ namespace XOProject.Controller
         public async Task<IActionResult> GetAnalysis([FromRoute]string symbol)
         {
             var list = await _tradeRepository.GetAnalysis(symbol);
-
             return Ok(list);
         }
 

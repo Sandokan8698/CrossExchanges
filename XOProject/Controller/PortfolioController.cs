@@ -6,9 +6,9 @@ namespace XOProject.Controller
     [Route("api/Portfolio")]
     public class PortfolioController : ControllerBase
     {
-        private IPortfolioRepository _portfolioRepository;
+        private readonly IPortfolioRepository _portfolioRepository;
 
-        public PortfolioController(IShareRepository shareRepository, ITradeRepository tradeRepository, IPortfolioRepository portfolioRepository)
+        public PortfolioController(IPortfolioRepository portfolioRepository)
         {
             _portfolioRepository = portfolioRepository;
         }
@@ -16,8 +16,7 @@ namespace XOProject.Controller
         [HttpGet("{portFolioid}")]
         public async Task<IActionResult> GetPortfolioInfo([FromRoute]int portFolioid)
         {
-            var portfolio = await _portfolioRepository.FindByIdAsync(portFolioid);
-            
+            var portfolio = await _portfolioRepository.FindByIdAsync(portFolioid);           
             return Ok(portfolio);
         }
 

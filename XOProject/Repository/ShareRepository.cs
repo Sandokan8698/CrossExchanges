@@ -14,7 +14,7 @@ namespace XOProject
 
         public Task<Share> FindLastBySymbolAsync(string symbol)
         {
-            return _dbContext.Set<Share>().Where(x => x.Symbol == symbol).LastOrDefaultAsync();
+            return _dbContext.Set<Share>().Where(x => x.Symbol.Equals(symbol)).LastOrDefaultAsync();
         }
     }
 }

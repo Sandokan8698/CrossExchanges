@@ -24,7 +24,7 @@ namespace XOProject.Tests
         [Test]
         public async Task Post_ShouldInsertHourlySharePrice()
         {
-            // Arrege
+            // Arrenge
             var hourRate = new Share
             {
                 Id = 1,
@@ -101,7 +101,7 @@ namespace XOProject.Tests
         {
             // Arrange
             var hourRate = new Share {Symbol = "REL", Rate = 100.0M};
-            _shareController.ModelState.AddModelError("timeStamp", "The input was not valid.");
+            _shareController.ModelState.AddModelError("TimeStamp", "The input was not valid.");
 
             // Act
             var result = await _shareController.Post(hourRate);
